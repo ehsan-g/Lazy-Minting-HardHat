@@ -1,10 +1,10 @@
-import {Signature} from '../src/Signature'
-import LazyFactory from './build/artifacts/contracts/LazyFactory.sol/LazyFactory.json';
-import { ethers, Contract } from 'ethers';
-import { id } from '@ethersproject/hash';
+import { Signature } from '../src/Signature'
+import LazyFactory from '../src/build/contracts/LazyFactory.sol/artifacts/contracts/LazyFactory.sol/LazyFactory.json';
+import { ethers } from 'ethers';
 
 export const deployMyFactory = async () => {
   let signerContract;
+  let signerFactory;
   if (window.ethereum) {
     try {
 
@@ -12,26 +12,21 @@ export const deployMyFactory = async () => {
       const provider = new ethers.providers.Web3Provider(window.ethereum);
 
       const signer = provider.getSigner();
-      const signerAddress = await signer.getAddress();
 
       const { chainId } = await provider.getNetwork();
       console.log(`chain Id: ${chainId}`);
 
-      const signerFactory = new ethers.ContractFactory(LazyFactory.abi, LazyFactory.bytecode, signer)
-      signerContract = await signerFactory.deploy(signerAddress);
-      if (signerContract) {
-        
-        makeVoucher(signerContract)
-      }
+      signerFactory = new ethers.ContractFactory(LazyFactory.abi, LazyFactory.bytecode, signer)
+      signerContract = await signerFactory.deploy('xyz', 'my token');
     } catch (e) {
       console.log(e);
     }
   }
 
-  return signerContract
+  return { signerContract, signerFactory }
 }
 
-export const makeVoucher = async (signerContract) => {
+export const makeVoucher = async (signerContract, amount, tokenId, tokenUri) => {
   let voucher;
   if (window.ethereum) {
     try {
@@ -41,25 +36,37 @@ export const makeVoucher = async (signerContract) => {
 
       const theSignature = new Signature({ contract: signerContract, signer })
       console.log(theSignature)
-      console.log('here')
 
-      voucher = await theSignature.signTransaction(200,1, "ipfs://bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi")
+      voucher = await theSignature.signTransaction(amount, tokenId, tokenUri)
     } catch (e) {
       console.log(e);
     }
   }
-
-  return { voucher }
+  return voucher
 }
 
-// export async function signToken(signer, redeemer, price, tokenId, tokenUri) {
+export const purchase = async (signerFactory, signerContract, voucher) => {
+  if (window.ethereum) {
+    try {
+      await window.ethereum.enable();
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
 
-//   // the redeemerContract is an instance of the signerContract that's wired up to the redeemer's signing key
-//   const redeemerFactory = signerFactory.connect(redeemer);
-//   const redeemerContract = redeemerFactory.attach(signerContract.address);
+      const redeemer = provider.getSigner();
+      const redeemerFactory = signerFactory.connect(redeemer)
+
+      const redeemerContract = redeemerFactory.attach(signerContract.address)
+
+      const redeemerAddress = await redeemer.getAddress();
 
 
-//   const signature = new Signature({ signerFactory, signer })
-//   const voucher = await signature.signTransaction(price, tokenId, tokenUri)
+      const mintedTokenId = await redeemerContract.redeem(redeemerAddress, voucher)
+      // const mintedTokenId = await redeemerContract.redeem(redeemerAddress, voucher)
 
-// }
+      return mintedTokenId
+
+    } catch (e) {
+      console.log(e);
+    }
+
+  }
+}

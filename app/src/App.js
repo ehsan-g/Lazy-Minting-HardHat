@@ -1,28 +1,87 @@
-
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 // import { ethers, Contract } from 'ethers';
-import { deployMyFactory  } from '../src/deploy'
+import { deployMyFactory, makeVoucher, purchase } from '../src/deploy'
 
 const App = () => {
 
 
-  
+  const [contractAddress, setContractAddress] = useState('')
+  const [deployedContract, setDeployedContract] = useState()
+  const [factory, setFactory] = useState()
+
+  const [voucher1, setVoucher1] = useState()
+  const [voucher2, setVoucher2] = useState()
+  const [disable, setDisable] = useState(false)
+
+  useEffect(() => {
+    if (contractAddress) {
+      setDisable(true)
+    }
+  }, [contractAddress])
+
   const handleDeploy = async () => {
-    console.log('hi')
-    await deployMyFactory()
-    // const signature = new Signature({  contract, signer: minter })
-    // Signature.signTransaction(price, tokenId, tokenUri) 
+    const { signerContract, signerFactory } = await deployMyFactory()
+    setDeployedContract(signerContract)
+    setContractAddress(signerContract.address)
+
+    setFactory(signerFactory)
   }
+
+  const handleSignature1 = async () => {
+    const theVoucher = await makeVoucher(deployedContract, 200, 1, 'https//tokenUri.com1')
+    setVoucher1(theVoucher)
+  }
+
+  const handleSignature2 = async () => {
+    const theVoucher = await makeVoucher(deployedContract, 400, 2, 'https//tokenUri.com2')
+    setVoucher2(theVoucher)
+  }
+
+  const handlePurchase = async (theVoucher) => {
+    const purchasedToken = await purchase(factory, deployedContract, theVoucher)
+  }
+
   return (
     <div>
-      <button onClick={() => handleDeploy()}>
-        Deploy My store
+      <button disabled={disable} onClick={() => handleDeploy()}>
+        Deploy My store Once
       </button>
-      <button>
-        Sign my token
+      <br />
+      <span>Contract Address{contractAddress}</span>
+      <br />
+      <br />
+      <button disabled={voucher1} onClick={() => handleSignature1()}>
+        Sell my token 1
       </button>
+      <br />
+      <button disabled={voucher2} onClick={() => handleSignature2()}>
+        Sell my token 2
+      </button>
+      <br />
+      {
+        voucher1 && (
+          <div>
+            <pre>{JSON.stringify(voucher1, null, 2)}</pre>
+            <button onClick={() => handlePurchase(voucher1)}>
+              Buy token 1
+            </button>
+          </div>
+        )
+      }
+      <br />
+      {
+        voucher2 && (
+          <div>
+            <pre>{JSON.stringify(voucher2, null, 2)}</pre>
+            <button onClick={() => handlePurchase(voucher2)}>
+              Buy token 2
+            </button>
+          </div>
+        )
+      }
+
     </div>
-)
+  )
 }
 
 export default App;

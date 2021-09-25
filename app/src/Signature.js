@@ -21,8 +21,8 @@ class Signature {
     return this.domainData;
   }
 
-  async signTransaction(price, tokenId, tokenUri) {
-
+  async signTransaction(amount, tokenId, tokenUri) {
+    console.log(await this.signer.getAddress())
     const domain = await this.designDomain();
     // define your data types
     const types = {
@@ -31,20 +31,18 @@ class Signature {
         { name: "account", type: "address" },
         { name: "tokenId", type: "uint256" },
         { name: "tokenUri", type: "string" },
-        { name: "contents", type: "string" },
+        { name: "content", type: "string" },
       ],
     };
     // the data to sign / signature will be added to our solidity struct
     const voucher = {
-      amount: price,
-      tokenId: tokenId,
+      amount: amount,
       account: await this.signer.getAddress(),
+      tokenId: tokenId,
       tokenUri: tokenUri,
-      contents: "Hello World!",
+      content: "Hello World!",
     };
-    console.log({
-      ...voucher,
-    })
+
     // signer._signTypedData(domain, types, value) =>  returns a raw signature
     const signature = await this.signer._signTypedData(domain, types, voucher);
     return {
