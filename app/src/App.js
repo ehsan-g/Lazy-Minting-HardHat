@@ -39,6 +39,8 @@ const App = () => {
 
   const handlePurchase = async (theVoucher) => {
     const purchasedToken = await purchase(factory, deployedContract, theVoucher)
+    console.log('huh')
+    console.log(theVoucher)
   }
 
   return (
@@ -51,11 +53,11 @@ const App = () => {
       <br />
       <br />
       <button disabled={voucher1} onClick={() => handleSignature1()}>
-        Sell my token 1
+        Sign My First Item
       </button>
       <br />
       <button disabled={voucher2} onClick={() => handleSignature2()}>
-        Sell my token 2
+        Sign My Second Item
       </button>
       <br />
       {

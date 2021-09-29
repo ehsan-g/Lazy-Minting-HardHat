@@ -22,7 +22,6 @@ class Signature {
   }
 
   async signTransaction(amount, tokenId, tokenUri) {
-    console.log(await this.signer.getAddress())
     const domain = await this.designDomain();
     // define your data types
     const types = {
@@ -40,7 +39,7 @@ class Signature {
       account: await this.signer.getAddress(),
       tokenId: tokenId,
       tokenUri: tokenUri,
-      content: "Hello World!",
+      content: "You are signing this item to be available on market!",
     };
 
     // signer._signTypedData(domain, types, value) =>  returns a raw signature

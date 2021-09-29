@@ -58,9 +58,8 @@ export const purchase = async (signerFactory, signerContract, voucher) => {
 
       const redeemerAddress = await redeemer.getAddress();
 
+      const mintedTokenId = await redeemerContract.redeem(redeemerAddress, voucher, { value: 1000000000000})
 
-      const mintedTokenId = await redeemerContract.redeem(redeemerAddress, voucher)
-      // const mintedTokenId = await redeemerContract.redeem(redeemerAddress, voucher)
 
       return mintedTokenId
 
