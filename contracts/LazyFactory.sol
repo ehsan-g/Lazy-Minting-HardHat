@@ -18,7 +18,8 @@ contract LazyFactory is
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
 
     struct NFTVoucher {
-        uint256 amount;
+        // address signerContract;
+        uint256 sellingPrice;
         uint256 tokenId;
         string tokenUri;
         string content;
@@ -26,6 +27,16 @@ contract LazyFactory is
     }
 
     mapping(address => uint256) private balanceByAddress;
+
+    // event redeemed(
+    //     address indexed signerContract,
+    //     uint256 sellingPrice,
+    //     uint256 indexed tokenId,
+    //     string tokenUri,
+    //     address buyer,
+    //     address seller,
+    //     bool sold
+    // );
 
     constructor(string memory name, string memory symbol)
         ERC721(name, symbol)
@@ -42,7 +53,10 @@ contract LazyFactory is
     {
         address signer = _verify(voucher);
         require(hasRole(MINTER_ROLE, signer), "Invalid signature");
-        require(msg.value == voucher.amount, "Please enter the correct amount");
+        require(
+            msg.value == voucher.sellingPrice,
+            "Enter the correct sellingPrice"
+        );
 
         // first assign the token to the signer, to establish provenance on-chain
         _mint(signer, voucher.tokenId);
@@ -53,6 +67,16 @@ contract LazyFactory is
 
         // record payment to signer's withdrawal balance
         balanceByAddress[signer] += msg.value;
+
+        // emit redeemed(
+        //     voucher.signerContract,
+        //     voucher.sellingPrice,
+        //     voucher.tokenId,
+        //     voucher.tokenUri,
+        //     msg.sender,
+        //     signer,
+        //     true
+        // );
 
         return voucher.tokenId;
     }
@@ -85,10 +109,10 @@ contract LazyFactory is
                 keccak256(
                     abi.encode(
                         keccak256(
-                            "NFTVoucher(uint256 tokenId,uint256 amount,string uri)"
+                            "NFTVoucher(uint256 tokenId,uint256 sellingPrice,string uri)"
                         ),
                         voucher.tokenId,
-                        voucher.amount,
+                        voucher.sellingPrice,
                         keccak256(bytes(voucher.tokenUri))
                     )
                 )

@@ -19,6 +19,7 @@ export const deployMyFactory = async () => {
       signerFactory = new ethers.ContractFactory(LazyFactory.abi, LazyFactory.bytecode, signer)
       signerContract = await signerFactory.deploy('xyz', 'my token');
     } catch (e) {
+      console.log('problem deploying: ');
       console.log(e);
     }
   }
@@ -26,19 +27,24 @@ export const deployMyFactory = async () => {
   return { signerContract, signerFactory }
 }
 
-export const makeVoucher = async (signerContract, amount, tokenId, tokenUri) => {
+export const createVoucher = async (signerContract, sellingPrice, tokenId, tokenUri) => {
   let voucher;
   if (window.ethereum) {
     try {
       await window.ethereum.enable();
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       const signer = provider.getSigner();
+      const theSellingPrice = ethers.utils.parseUnits(sellingPrice.toString(), "ether")
 
       const theSignature = new Signature({ contract: signerContract, signer })
-      console.log(theSignature)
 
-      voucher = await theSignature.signTransaction(amount, tokenId, tokenUri)
+      voucher = await theSignature.signTransaction(theSellingPrice, tokenId, tokenUri)
+      console.log(theSignature)
+      console.log(voucher)
+      
+
     } catch (e) {
+      console.log('problem Signing: ');
       console.log(e);
     }
   }
@@ -58,12 +64,14 @@ export const purchase = async (signerFactory, signerContract, voucher) => {
 
       const redeemerAddress = await redeemer.getAddress();
 
-      const mintedTokenId = await redeemerContract.redeem(redeemerAddress, voucher, { value: 1000000000000})
+
+      const mintedTokenId = await redeemerContract.redeem(redeemerAddress, voucher, {value: voucher.sellingPrice})
 
 
       return mintedTokenId
 
     } catch (e) {
+      console.log('problem buying: ');
       console.log(e);
     }
 

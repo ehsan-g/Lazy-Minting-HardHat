@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 // import { ethers, Contract } from 'ethers';
-import { deployMyFactory, makeVoucher, purchase } from '../src/deploy'
+import { deployMyFactory, createVoucher, purchase } from '../src/deploy'
 
 const App = () => {
 
@@ -28,19 +28,18 @@ const App = () => {
   }
 
   const handleSignature1 = async () => {
-    const theVoucher = await makeVoucher(deployedContract, 200, 1, 'https//tokenUri.com1')
+    const theVoucher = await createVoucher(deployedContract, 0.00015, 1, 'https//tokenUri.com1')
     setVoucher1(theVoucher)
   }
 
   const handleSignature2 = async () => {
-    const theVoucher = await makeVoucher(deployedContract, 400, 2, 'https//tokenUri.com2')
+    const theVoucher = await createVoucher(deployedContract, 0.000004, 2, 'https//tokenUri.com2')
     setVoucher2(theVoucher)
   }
 
   const handlePurchase = async (theVoucher) => {
     const purchasedToken = await purchase(factory, deployedContract, theVoucher)
-    console.log('huh')
-    console.log(theVoucher)
+    console.log(purchasedToken)
   }
 
   return (
@@ -49,17 +48,28 @@ const App = () => {
         Deploy My store Once
       </button>
       <br />
-      <span>Contract Address{contractAddress}</span>
       <br />
-      <br />
-      <button disabled={voucher1} onClick={() => handleSignature1()}>
-        Sign My First Item
-      </button>
-      <br />
-      <button disabled={voucher2} onClick={() => handleSignature2()}>
-        Sign My Second Item
-      </button>
-      <br />
+      <span>Contract Address: <a target="_blank" href={`https://rinkeby.etherscan.io/address/${contractAddress}`} rel="noreferrer">{contractAddress}</a></span>
+
+
+
+      {contractAddress && (
+
+        <div>
+      <div> ---------------------------------------- </div>
+
+              <button disabled={voucher1} onClick={() => handleSignature1()}>
+              Sign My First Item
+            </button>
+            <br />
+            <button disabled={voucher2} onClick={() => handleSignature2()}>
+              Sign My Second Item
+            </button>
+          <br />
+      <div> ---------------------------------------- </div>
+
+          </div>
+         )}
       {
         voucher1 && (
           <div>
@@ -81,8 +91,9 @@ const App = () => {
           </div>
         )
       }
-
+      <div> ---------------------------------------- </div>
     </div>
+
   )
 }
 
