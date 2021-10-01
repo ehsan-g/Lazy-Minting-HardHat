@@ -27,7 +27,7 @@ class Signature {
     // define your data types
     const types = {
       Voucher: [
-        { name: "signerWallet", type: "address" },
+        // { name: "signerWallet", type: "address" },
         { name: "sellingPrice", type: "uint256" },
         { name: "tokenId", type: "uint256" },
         { name: "tokenUri", type: "string" },
@@ -37,7 +37,7 @@ class Signature {
 
     // the data to sign / signature will be added to our solidity struct
     const voucher = {
-      signerWallet: await this.signer.getAddress(),
+      // signerWallet: await this.signer.getAddress(),
       sellingPrice: sellingPrice,
       tokenId: tokenId,
       tokenUri: tokenUri,

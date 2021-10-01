@@ -17,7 +17,7 @@ export const deployMyFactory = async () => {
       console.log(`chain Id: ${chainId}`);
 
       signerFactory = new ethers.ContractFactory(LazyFactory.abi, LazyFactory.bytecode, signer)
-      signerContract = await signerFactory.deploy('xyz', 'my token');
+      signerContract = await signerFactory.deploy('xyz', 'my token', await signer.getAddress());
     } catch (e) {
       console.log('problem deploying: ');
       console.log(e);
@@ -64,6 +64,7 @@ export const purchase = async (signerFactory, signerContract, voucher) => {
 
       const redeemerAddress = await redeemer.getAddress();
 
+      console.log(voucher)
 
       const mintedTokenId = await redeemerContract.redeem(redeemerAddress, voucher, {value: voucher.sellingPrice})
 

@@ -8,6 +8,7 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/utils/cryptography/draft-EIP712.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "hardhat/console.sol";
 
 contract LazyFactory is
     ERC721URIStorage,
@@ -18,7 +19,6 @@ contract LazyFactory is
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
 
     struct NFTVoucher {
-        // address signerContract;
         uint256 sellingPrice;
         uint256 tokenId;
         string tokenUri;
@@ -38,11 +38,12 @@ contract LazyFactory is
     //     bool sold
     // );
 
-    constructor(string memory name, string memory symbol)
-        ERC721(name, symbol)
-        EIP712(name, "1")
-    {
-        _setupRole(MINTER_ROLE, _msgSender());
+    constructor(
+        string memory name,
+        string memory symbol,
+        address payable minter
+    ) ERC721(name, symbol) EIP712(name, "1") {
+        _setupRole(MINTER_ROLE, minter);
     }
 
     function redeem(address buyer, NFTVoucher calldata voucher)
@@ -52,13 +53,13 @@ contract LazyFactory is
         returns (uint256)
     {
         address signer = _verify(voucher);
-        require(hasRole(MINTER_ROLE, signer), "Invalid signature");
-        require(
-            msg.value == voucher.sellingPrice,
-            "Enter the correct sellingPrice"
-        );
+        // require(hasRole(MINTER_ROLE, signer), "Invalid Signature");
+        // require(
+        //     msg.value == voucher.sellingPrice,
+        //     "Enter the correct sellingPrice"
+        // );
 
-        // first assign the token to the signer, to establish provenance on-chain
+        // // first assign the token to the signer, to establish provenance on-chain
         _mint(signer, voucher.tokenId);
         _setTokenURI(voucher.tokenId, voucher.tokenUri);
 
@@ -67,6 +68,7 @@ contract LazyFactory is
 
         // record payment to signer's withdrawal balance
         balanceByAddress[signer] += msg.value;
+        console.log("value");
 
         // emit redeemed(
         //     voucher.signerContract,
