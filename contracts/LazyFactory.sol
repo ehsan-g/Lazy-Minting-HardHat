@@ -8,6 +8,7 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/utils/cryptography/draft-EIP712.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "hardhat/console.sol";
 
 contract LazyFactory is
     ERC721URIStorage,
@@ -18,7 +19,7 @@ contract LazyFactory is
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
 
     struct NFTVoucher {
-        // address signerContract;
+        address signerContract;
         uint256 sellingPrice;
         uint256 tokenId;
         string tokenUri;
@@ -57,7 +58,6 @@ contract LazyFactory is
             msg.value == voucher.sellingPrice,
             "Enter the correct sellingPrice"
         );
-
         // first assign the token to the signer, to establish provenance on-chain
         _mint(signer, voucher.tokenId);
         _setTokenURI(voucher.tokenId, voucher.tokenUri);

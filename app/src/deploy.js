@@ -16,8 +16,12 @@ export const deployMyFactory = async () => {
       const { chainId } = await provider.getNetwork();
       console.log(`chain Id: ${chainId}`);
 
+      // Creates a new instance of a ContractFactory 
       signerFactory = new ethers.ContractFactory(LazyFactory.abi, LazyFactory.bytecode, signer)
       signerContract = await signerFactory.deploy('xyz', 'my token');
+      console.log(LazyFactory.abi, LazyFactory.bytecode, signer);
+
+
     } catch (e) {
       console.log('problem deploying: ');
       console.log(e);
@@ -39,8 +43,7 @@ export const createVoucher = async (signerContract, sellingPrice, tokenId, token
       const theSignature = new Signature({ contract: signerContract, signer })
 
       voucher = await theSignature.signTransaction(theSellingPrice, tokenId, tokenUri)
-      console.log(theSignature)
-      console.log(voucher)
+      const mintedTokenId = await signerContract.redeem(await signer.getAddress(), voucher)
       
 
     } catch (e) {
@@ -64,11 +67,12 @@ export const purchase = async (signerFactory, signerContract, voucher) => {
 
       const redeemerAddress = await redeemer.getAddress();
 
+      console.log(redeemerContract)
+      console.log(voucher)
+      console.log(voucher.sellingPrice)
+      const mintedTokenId = await redeemerContract.redeem(redeemerAddress, voucher)
 
-      const mintedTokenId = await redeemerContract.redeem(redeemerAddress, voucher, {value: voucher.sellingPrice})
-
-
-      return mintedTokenId
+      // return mintedTokenId
 
     } catch (e) {
       console.log('problem buying: ');

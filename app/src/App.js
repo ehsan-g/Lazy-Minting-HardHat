@@ -39,7 +39,6 @@ const App = () => {
 
   const handlePurchase = async (theVoucher) => {
     const purchasedToken = await purchase(factory, deployedContract, theVoucher)
-    console.log(purchasedToken)
   }
 
   return (
