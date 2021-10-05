@@ -4,7 +4,7 @@ const { ethers } = hardhat;
 const { Signature } = require("../app/src/Signature");
 
 async function deploy() {
-  const [minter, redeemer, _] = await ethers.getSigners();
+  const [minter, redeemer] = await ethers.getSigners();
 
   const factory = await ethers.getContractFactory("LazyFactory", minter);
   const contract = await factory.deploy("xyz", "my token", minter.address);
@@ -30,6 +30,7 @@ describe("LazyFactory", function () {
       "my token",
       minter.address
     );
+
     await contract.deployed();
   });
 
@@ -39,20 +40,17 @@ describe("LazyFactory", function () {
     const theSignature = new Signature({ contract, signer: minter });
     const theSellingPrice = ethers.utils.parseUnits("0.000000008", "ether");
 
+    console.log("theSellingPrice: " + theSellingPrice);
+    console.log("minter: " + minter.address);
+    console.log("redeemer: " + redeemer.address);
+
     const voucher = await theSignature.signTransaction(
+      1,
       theSellingPrice,
-      9,
-      "tokenUri"
+      "www.tokenUri.com"
     );
 
-    console.log(voucher);
-    console.log(minter.address);
-    console.log(redeemer.address);
-    await expect(
-      redeemerContract.redeem(redeemer.address, voucher, {
-        value: voucher.sellingPrice,
-      })
-    )
+    await expect(redeemerContract.redeem(redeemer.address, voucher))
       .to.emit(contract, "Transfer") // transfer from null address to minter
       .withArgs(
         "0x0000000000000000000000000000000000000000",

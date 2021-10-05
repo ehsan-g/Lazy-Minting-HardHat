@@ -1,3 +1,8 @@
+
+// These constants must match the ones used in the smart contract.
+const SIGNING_DOMAIN_NAME = "LazyNFT"
+const SIGNING_DOMAIN_VERSION = "1"
+
 class Signature {
   constructor({ contract, signer }) {
     this.contract = contract;
@@ -11,25 +16,25 @@ class Signature {
     }
 
     let chainId = await this.contract.getChainID();
-    console.log(chainId.toString())
+    console.log('chainId: ' + chainId.toString())
+    
     this.domainData = {
-      name: "Awesome dApp",
-      version: "1",
-      chainId: chainId.toString() ,
-      // the address of the contract that will verify the signature. The user-agent may do contract specific phishing prevention.
+      name: SIGNING_DOMAIN_NAME,
+      version: SIGNING_DOMAIN_VERSION,
       verifyingContract: this.contract.address,
+      chainId,
+      // the address of the contract that will verify the signature. The user-agent may do contract specific phishing prevention.
     };
     return this.domainData;
   }
 
-  async signTransaction(sellingPrice, tokenId, tokenUri) {
+  async signTransaction(tokenId, sellingPrice ,tokenUri) {
     const domain = await this.designDomain();
     // define your data types
     const types = {
-      Voucher: [
-        // { name: "signerWallet", type: "address" },
-        { name: "sellingPrice", type: "uint256" },
+      NFTVoucher: [
         { name: "tokenId", type: "uint256" },
+        { name: "sellingPrice", type: "uint256" },
         { name: "tokenUri", type: "string" },
         { name: "content", type: "string" },
       ],
@@ -37,10 +42,9 @@ class Signature {
 
     // the data to sign / signature will be added to our solidity struct
     const voucher = {
-      // signerWallet: await this.signer.getAddress(),
-      sellingPrice: sellingPrice,
-      tokenId: tokenId,
-      tokenUri: tokenUri,
+      tokenId,
+      tokenUri,
+      sellingPrice,
       content: "You are signing this item to be available on market!",
     };
 
@@ -52,6 +56,7 @@ class Signature {
     };
   }
 }
+
 
 module.exports = {
   Signature,

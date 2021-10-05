@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 // import { ethers, Contract } from 'ethers';
-import { deployMyFactory, createVoucher, purchase } from '../src/deploy'
+import { deployMyFactory, createVoucher, purchase, balance } from '../src/deploy'
 
 const App = () => {
 
@@ -8,6 +8,7 @@ const App = () => {
   const [contractAddress, setContractAddress] = useState('')
   const [deployedContract, setDeployedContract] = useState()
   const [factory, setFactory] = useState()
+  const [myBalance, setMyBalance] = useState(null)
 
   const [voucher1, setVoucher1] = useState()
   const [voucher2, setVoucher2] = useState()
@@ -42,6 +43,13 @@ const App = () => {
     console.log(purchasedToken)
   }
 
+  const handleBalance = async () => {
+   const balanceInEth = await balance(contractAddress)
+    console.log(balanceInEth)
+    setMyBalance(balanceInEth)
+    
+    
+  }
   return (
     <div>
       <button disabled={disable} onClick={() => handleDeploy()}>
@@ -49,7 +57,7 @@ const App = () => {
       </button>
       <br />
       <br />
-      <span>Contract Address: <a target="_blank" href={`https://rinkeby.etherscan.io/address/${contractAddress}`} rel="noreferrer">{contractAddress}</a></span>
+      <span>Store Contract Address: <a target="_blank" href={`https://rinkeby.etherscan.io/address/${contractAddress}`} rel="noreferrer">{contractAddress}</a></span>
 
 
 
@@ -92,6 +100,12 @@ const App = () => {
         )
       }
       <div> ---------------------------------------- </div>
+      <div>
+            <button onClick={() => handleBalance()}>
+             Store Balance
+        </button><br />
+        <div>{`balance: ${myBalance} ETH`}</div>
+          </div>
     </div>
 
   )

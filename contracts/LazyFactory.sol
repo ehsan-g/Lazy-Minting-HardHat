@@ -16,11 +16,13 @@ contract LazyFactory is
     AccessControl,
     ReentrancyGuard
 {
+    string private constant SIGNING_DOMAIN = "LazyNFT";
+    string private constant SIGNATURE_VERSION = "1";
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
 
     struct NFTVoucher {
-        uint256 sellingPrice;
         uint256 tokenId;
+        uint256 sellingPrice;
         string tokenUri;
         string content;
         bytes signature;
@@ -28,21 +30,11 @@ contract LazyFactory is
 
     mapping(address => uint256) private balanceByAddress;
 
-    // event redeemed(
-    //     address indexed signerContract,
-    //     uint256 sellingPrice,
-    //     uint256 indexed tokenId,
-    //     string tokenUri,
-    //     address buyer,
-    //     address seller,
-    //     bool sold
-    // );
-
     constructor(
         string memory name,
         string memory symbol,
         address payable minter
-    ) ERC721(name, symbol) EIP712(name, "1") {
+    ) ERC721(name, symbol) EIP712(SIGNING_DOMAIN, SIGNATURE_VERSION) {
         _setupRole(MINTER_ROLE, minter);
     }
 
@@ -53,11 +45,11 @@ contract LazyFactory is
         returns (uint256)
     {
         address signer = _verify(voucher);
-        // require(hasRole(MINTER_ROLE, signer), "Invalid Signature");
-        // require(
-        //     msg.value == voucher.sellingPrice,
-        //     "Enter the correct sellingPrice"
-        // );
+        console.log("-------------------- signature address ----------------");
+        console.log(signer);
+
+        require(hasRole(MINTER_ROLE, signer), "Invalid Signature");
+        require(msg.value == 1, "Enter the correct sellingPrice");
 
         // // first assign the token to the signer, to establish provenance on-chain
         _mint(signer, voucher.tokenId);
@@ -68,17 +60,6 @@ contract LazyFactory is
 
         // record payment to signer's withdrawal balance
         balanceByAddress[signer] += msg.value;
-        console.log("value");
-
-        // emit redeemed(
-        //     voucher.signerContract,
-        //     voucher.sellingPrice,
-        //     voucher.tokenId,
-        //     voucher.tokenUri,
-        //     msg.sender,
-        //     signer,
-        //     true
-        // );
 
         return voucher.tokenId;
     }
@@ -111,11 +92,12 @@ contract LazyFactory is
                 keccak256(
                     abi.encode(
                         keccak256(
-                            "NFTVoucher(uint256 tokenId,uint256 sellingPrice,string uri)"
+                            "NFTVoucher(uint256 tokenId,uint256 sellingPrice,string tokenUri,string content)"
                         ),
                         voucher.tokenId,
                         voucher.sellingPrice,
-                        keccak256(bytes(voucher.tokenUri))
+                        keccak256(bytes(voucher.tokenUri)),
+                        keccak256(bytes(voucher.content))
                     )
                 )
             );
