@@ -54,6 +54,7 @@ contract LazyFactory is
         require(msg.value == voucher.sellingPrice, "Enter the correct sellingPrice");
 
         // // first assign the token to the signer, to establish provenance on-chain
+
         _mint(signer, voucher.tokenId);
         _setTokenURI(voucher.tokenId, voucher.tokenUri);
 

@@ -43,8 +43,8 @@ class Signature {
     // the data to sign / signature will be added to our solidity struct
     const voucher = {
       tokenId,
-      tokenUri,
       sellingPrice,
+      tokenUri,
       content: "You are signing this item to be available on market!",
     };
 

@@ -29,27 +29,25 @@ const App = () => {
   }
 
   const handleSignature1 = async () => {
-    const theVoucher = await createVoucher(deployedContract, 0.00015, 1, 'https//tokenUri.com1')
+    const theVoucher = await createVoucher(deployedContract, 1,  0.00015, 'https//tokenUri.com1')
     setVoucher1(theVoucher)
   }
 
   const handleSignature2 = async () => {
-    const theVoucher = await createVoucher(deployedContract, 0.000004, 2, 'https//tokenUri.com2')
+    const theVoucher = await createVoucher(deployedContract, 2,  0.000004, 'https//tokenUri.com2')
     setVoucher2(theVoucher)
   }
 
   const handlePurchase = async (theVoucher) => {
     const purchasedToken = await purchase(factory, deployedContract, theVoucher)
-    console.log(purchasedToken)
   }
 
   const handleBalance = async () => {
    const balanceInEth = await balance(contractAddress)
     console.log(balanceInEth)
     setMyBalance(balanceInEth)
-    
-    
   }
+
   return (
     <div>
       <button disabled={disable} onClick={() => handleDeploy()}>

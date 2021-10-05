@@ -52,7 +52,7 @@ describe("LazyFactory", function () {
 
     await expect(
       redeemerContract.redeem(redeemer.address, voucher, {
-        value: theSellingPrice,
+        value: voucher.sellingPrice,
       })
     )
       .to.emit(contract, "Transfer") // transfer from null address to minter
