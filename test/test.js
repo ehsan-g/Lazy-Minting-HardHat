@@ -50,7 +50,11 @@ describe("LazyFactory", function () {
       "www.tokenUri.com"
     );
 
-    await expect(redeemerContract.redeem(redeemer.address, voucher))
+    await expect(
+      redeemerContract.redeem(redeemer.address, voucher, {
+        value: theSellingPrice,
+      })
+    )
       .to.emit(contract, "Transfer") // transfer from null address to minter
       .withArgs(
         "0x0000000000000000000000000000000000000000",

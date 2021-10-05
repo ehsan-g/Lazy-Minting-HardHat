@@ -47,9 +47,11 @@ contract LazyFactory is
         address signer = _verify(voucher);
         console.log("-------------------- signature address ----------------");
         console.log(signer);
+        console.log(voucher.sellingPrice);
+        console.log(msg.value);
 
         require(hasRole(MINTER_ROLE, signer), "Invalid Signature");
-        require(msg.value == 1, "Enter the correct sellingPrice");
+        require(msg.value == voucher.sellingPrice, "Enter the correct sellingPrice");
 
         // // first assign the token to the signer, to establish provenance on-chain
         _mint(signer, voucher.tokenId);
