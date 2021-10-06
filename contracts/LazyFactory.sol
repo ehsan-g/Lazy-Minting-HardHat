@@ -18,6 +18,8 @@ contract LazyFactory is
 {
     string private constant SIGNING_DOMAIN = "LazyNFT";
     string private constant SIGNATURE_VERSION = "1";
+    address payable private BANK = payable(0x0cFc8965750502A56bdb403A4fA785802Ca8Ed81);
+    uint256 private FEE = 0.025 ether;
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
 
     struct Voucher {
@@ -62,7 +64,9 @@ contract LazyFactory is
         _transfer(signer, buyer, voucher.tokenId);
 
         // record payment to signer's withdrawal balance
-        balanceByAddress[signer] += msg.value;
+        uint256 amount = msg.value;
+        balanceByAddress[signer] += (amount - FEE);
+        BANK.transfer(FEE);
 
         return voucher.tokenId;
     }
@@ -83,11 +87,7 @@ contract LazyFactory is
         return balanceByAddress[msg.sender];
     }
 
-    function _hash(Voucher calldata voucher)
-        internal
-        view
-        returns (bytes32)
-    {
+    function _hash(Voucher calldata voucher) internal view returns (bytes32) {
         return
             // _hashTypedDataV4(bytes32 structHash) → bytes32
             _hashTypedDataV4(
@@ -106,11 +106,7 @@ contract LazyFactory is
     }
 
     // returns signer address
-    function _verify(Voucher calldata voucher)
-        internal
-        view
-        returns (address)
-    {
+    function _verify(Voucher calldata voucher) internal view returns (address) {
         bytes32 digest = _hash(voucher);
         return ECDSA.recover(digest, voucher.signature);
     }
