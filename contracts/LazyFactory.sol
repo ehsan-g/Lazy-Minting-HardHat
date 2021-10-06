@@ -20,7 +20,7 @@ contract LazyFactory is
     string private constant SIGNATURE_VERSION = "1";
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
 
-    struct NFTVoucher {
+    struct Voucher {
         uint256 tokenId;
         uint256 sellingPrice;
         string tokenUri;
@@ -38,20 +38,20 @@ contract LazyFactory is
         _setupRole(MINTER_ROLE, minter);
     }
 
-    function redeem(address buyer, NFTVoucher calldata voucher)
+    function redeem(address buyer, Voucher calldata voucher)
         public
         payable
         nonReentrant
         returns (uint256)
     {
         address signer = _verify(voucher);
-        console.log("-------------------- signature address ----------------");
-        console.log(signer);
-        console.log(voucher.sellingPrice);
-        console.log(msg.value);
 
+        require(signer != buyer, "You can not purchase your own token");
         require(hasRole(MINTER_ROLE, signer), "Invalid Signature");
-        require(msg.value == voucher.sellingPrice, "Enter the correct sellingPrice");
+        require(
+            msg.value == voucher.sellingPrice,
+            "Enter the correct sellingPrice"
+        );
 
         // // first assign the token to the signer, to establish provenance on-chain
 
@@ -67,7 +67,6 @@ contract LazyFactory is
         return voucher.tokenId;
     }
 
-    /// @notice Transfers all pending withdrawal balance to the caller. Reverts if the caller is not an authorized theSignr.
     function withdraw() public {
         require(hasRole(MINTER_ROLE, msg.sender), "Not the signer address");
 
@@ -84,7 +83,7 @@ contract LazyFactory is
         return balanceByAddress[msg.sender];
     }
 
-    function _hash(NFTVoucher calldata voucher)
+    function _hash(Voucher calldata voucher)
         internal
         view
         returns (bytes32)
@@ -95,7 +94,7 @@ contract LazyFactory is
                 keccak256(
                     abi.encode(
                         keccak256(
-                            "NFTVoucher(uint256 tokenId,uint256 sellingPrice,string tokenUri,string content)"
+                            "Voucher(uint256 tokenId,uint256 sellingPrice,string tokenUri,string content)"
                         ),
                         voucher.tokenId,
                         voucher.sellingPrice,
@@ -107,7 +106,7 @@ contract LazyFactory is
     }
 
     // returns signer address
-    function _verify(NFTVoucher calldata voucher)
+    function _verify(Voucher calldata voucher)
         internal
         view
         returns (address)

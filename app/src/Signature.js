@@ -32,7 +32,7 @@ class Signature {
     const domain = await this.designDomain();
     // define your data types
     const types = {
-      NFTVoucher: [
+      Voucher: [
         { name: "tokenId", type: "uint256" },
         { name: "sellingPrice", type: "uint256" },
         { name: "tokenUri", type: "string" },

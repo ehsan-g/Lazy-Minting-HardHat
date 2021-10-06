@@ -7,6 +7,7 @@ module.exports = {
   },
   extends: [
     "standard",
+    "wesbos",
     "plugin:prettier/recommended",
     "plugin:node/recommended",
   ],

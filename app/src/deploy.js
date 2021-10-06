@@ -20,7 +20,7 @@ export const createVoucher = async (signerContract, tokenId, sellingPrice, token
       
     } catch (e) {
       console.log('problem Signing: ');
-      console.log(e);
+      console.log(e.error);
     }
   }
   return voucher
@@ -48,7 +48,7 @@ export const deployMyFactory = async () => {
       
     } catch (e) {
       console.log('problem deploying: ');
-      console.log(e);
+      console.log(e.error);
     }
   }
 
@@ -79,16 +79,32 @@ export const purchase = async (signerFactory, signerContract, voucher) => {
 
     } catch (e) {
       console.log('problem buying: ');
-      console.log(e);
+      console.log(e.error);
     }
 
   }
 }
 
 export const balance = async (contractAddress) => {
-  const provider = new ethers.providers.Web3Provider(window.ethereum);
-  // const balance = await provider.getBalance("address")
-  const balance =  await provider.getBalance(contractAddress)
-  const balanceInEth = ethers.utils.formatEther(balance)
-  return balanceInEth
+  try {
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    // const balance = await provider.getBalance("address")
+    const balance =  await provider.getBalance(contractAddress)
+    const balanceInEth = ethers.utils.formatEther(balance)
+    return balanceInEth
+    } catch (e) {
+      console.log('problem balance: ');
+      console.log(e.error);
+    }
+}
+
+export const withdraw = async (signerContract) => {
+  try {
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const signer = provider.getSigner();
+    const withraw = await signerContract.withdraw()
+  } catch (e) {
+    console.log('problem withdraw: ');
+    console.log(e.error);
+  }
 }

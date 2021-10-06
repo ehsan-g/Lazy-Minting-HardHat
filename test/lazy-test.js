@@ -26,9 +26,9 @@ describe("LazyFactory", function () {
     const [minter] = await ethers.getSigners();
     const LazyFactory = await ethers.getContractFactory("LazyFactory");
     const contract = await LazyFactory.deploy(
-      "xyz",
+           "xyz" ,
       "my token",
-      minter.address
+      minter.address 
     );
 
     await contract.deployed();

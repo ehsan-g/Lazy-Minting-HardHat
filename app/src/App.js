@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 // import { ethers, Contract } from 'ethers';
-import { deployMyFactory, createVoucher, purchase, balance } from '../src/deploy'
+import { deployMyFactory, createVoucher, purchase, balance, withdraw } from '../src/deploy'
 
 const App = () => {
 
@@ -34,7 +34,7 @@ const App = () => {
   }
 
   const handleSignature2 = async () => {
-    const theVoucher = await createVoucher(deployedContract, 2,  0.000004, 'https//tokenUri.com2')
+    const theVoucher = await createVoucher(deployedContract, 2,  0.4, 'https//tokenUri.com2')
     setVoucher2(theVoucher)
   }
 
@@ -46,6 +46,9 @@ const App = () => {
    const balanceInEth = await balance(contractAddress)
     console.log(balanceInEth)
     setMyBalance(balanceInEth)
+  }
+  const handleWithdraw = async () => {
+    await withdraw(deployedContract)
   }
 
   return (
@@ -99,11 +102,16 @@ const App = () => {
       }
       <div> ---------------------------------------- </div>
       <div>
-            <button onClick={() => handleBalance()}>
-             Store Balance
-        </button><br />
-        <div>{`balance: ${myBalance} ETH`}</div>
-          </div>
+          <button onClick={() => handleBalance()}>
+            Store Balance
+          </button><br />
+          <div>{`balance: ${myBalance} ETH`}</div>
+      </div>
+      <div>
+          <button onClick={() => handleWithdraw()}>
+           Withdraw
+          </button><br />
+      </div>
     </div>
 
   )
